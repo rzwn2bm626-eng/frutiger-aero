@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Tab</title>
   <style>
-    /* IMPORTING YOUR CUSTOM FONT */
     @font-face {
       font-family: 'CustomFont';
       src: url('Electroharmonix.otf') format('opentype');
@@ -28,7 +27,7 @@
     #desktopWallpaperContainer {
       position: absolute;
       inset: 0;
-      z-index: 0; /* Background layer */
+      z-index: 0;
       overflow: hidden;
       pointer-events: none;
       background-size: cover;
@@ -44,7 +43,6 @@
       inset: 0;
     }
 
-    /* --- PLAIN WHITE DAY DISPLAY (POSITIONED AT TOP-CENTER) --- */
     #dayDisplay {
       position: absolute;
       left: 50%;
@@ -53,7 +51,7 @@
       color: #ffffff;
       font-family: 'CustomFont', sans-serif;
       font-size: 4rem;
-      z-index: 1; /* ONLY overlaps wallpaper */
+      z-index: 1;
       cursor: grab;
       text-shadow: none;
       background: transparent;
@@ -67,7 +65,7 @@
     #rainCanvas {
       position: absolute;
       inset: 0;
-      z-index: 2; /* Rain is above the day display */
+      z-index: 2;
       pointer-events: none;
       width: 100%;
       height: 100%;
@@ -78,10 +76,9 @@
       width: 100vw;
       position: relative;
       overflow: hidden;
-      z-index: 3; /* Desktop, apps, and everything else sit above */
+      z-index: 3;
     }
 
-    /* --- WINDOW SYSTEM STYLES --- */
     .app-window {
       position: absolute;
       top: 0;
@@ -199,7 +196,6 @@
       pointer-events: none !important;
     }
 
-    /* Resizable Handles */
     .resize-handle { position: absolute; z-index: 999; display: none; }
     .app-window.windowed .resize-handle, .launcher .resize-handle { display: block; }
     .resize-handle.n  { top: -4px; left: 0; right: 0; height: 8px; cursor: ns-resize; }
@@ -211,7 +207,6 @@
     .resize-handle.sw { bottom: -4px; left: -4px; width: 12px; height: 12px; cursor: nesw-resize; }
     .resize-handle.se { bottom: -4px; right: -4px; width: 12px; height: 12px; cursor: nwse-resize; }
 
-    /* Right Click Context Menu */
     .context-menu {
       position: absolute;
       width: 220px;
@@ -265,7 +260,6 @@
 
     .context-item:hover .submenu { display: flex; }
 
-    /* Launcher Menu - Standalone Floating Window */
     .launcher {
       position: fixed;
       width: 620px;
@@ -437,7 +431,6 @@
     .search-result-item:hover { transform: translateX(3px); background: rgba(255, 255, 255, 0.12); }
     .search-result-item img { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; }
 
-    /* Shelf / Dock */
     .shelf {
       position: fixed;
       background: rgba(0, 0, 0, 0.65);
@@ -519,7 +512,6 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); cursor: default; white-space: nowrap;
     }
 
-    /* Wallpaper Selection Modal */
     .wallpaper-modal {
       position: fixed; top: 50%; left: 50%;
       transform: translate(-50%, -50%) scale(0.95);
@@ -565,7 +557,6 @@
     .wallpaper-option video { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; pointer-events: none; }
     .wallpaper-option:hover { transform: scale(1.03); border-color: #ffffff; }
 
-    /* Alt-Tab Overlay */
     .alttab-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px);
       z-index: 5000; display: none; align-items: center; justify-content: center; gap: 20px; padding: 40px;
@@ -584,13 +575,9 @@
 <body>
 
   <div id="desktopWallpaperContainer"></div>
-
   <div id="dayDisplay"></div>
-
   <canvas id="rainCanvas"></canvas>
-
   <div class="desktop" id="desktop"></div>
-
   <div class="alttab-overlay" id="altTabOverlay"></div>
 
   <div class="wallpaper-modal" id="wallpaperModal">
@@ -663,7 +650,7 @@
     <div class="launcher-content-scroll">
       <div class="default-view" id="defaultView">
         <div class="app-grid" id="mainAppGrid">
-          <div class="app-icon" onclick="openApp('Notes', 'https://is3-ssl.mzstatic.com/image/thumb/Purple124/v4/4e/69/9b/4e699ba0-de7c-2369-fff1-d3e895648aab/source/512x512bb.jpg', 'APP/Notes.html')">
+       <div class="app-icon" onclick="openApp('Notes', 'https://is3-ssl.mzstatic.com/image/thumb/Purple124/v4/4e/69/9b/4e699ba0-de7c-2369-fff1-d3e895648aab/source/512x512bb.jpg', 'APP/Notes.html')">
             <div class="icon-img"><img src="https://is3-ssl.mzstatic.com/image/thumb/Purple124/v4/4e/69/9b/4e699ba0-de7c-2369-fff1-d3e895648aab/source/512x512bb.jpg" alt="Notes"></div>
             <span>Notes</span>
           </div>
@@ -737,39 +724,36 @@
   <script>
     // --- LISTEN FOR MESSAGES FROM APP STORE IFRAME ---
     window.addEventListener('message', (event) => {
-      if (event.data && event.data.type === 'INSTALL_APP') {
-        const { name, icon, url, code } = event.data.app;
-        installAppToOS(name, icon, url, code);
+      if (!event.data) return;
+      if (event.data.type === 'INSTALL_APP') {
+        const { name, icon, url, isFromAppStore } = event.data.app;
+        installAppToOS(name, icon, url, isFromAppStore);
+      } else if (event.data.type === 'OPEN_APP') {
+        const { name, icon, url } = event.data.app;
+        openApp(name, icon, url);
       }
     });
 
-    function installAppToOS(name, icon, url, code) {
+    function installAppToOS(name, icon, url, isFromAppStore = true) {
       const mainAppGrid = document.getElementById('mainAppGrid');
       if (!mainAppGrid) return;
 
-      // Prevent duplicate installs
       const existing = Array.from(mainAppGrid.querySelectorAll('.app-icon span')).some(span => span.textContent === name);
       if (existing) {
-        alert('App is already installed!');
+        openApp(name, icon, url);
         return;
       }
 
-      let finalTarget = url;
-
-      // If raw HTML code was provided, convert it into a Data URL
-      if (!finalTarget && code) {
-        finalTarget = 'data:text/html;charset=utf-8,' + encodeURIComponent(code);
-      }
-
-      // Create grid icon
       const el = document.createElement('div');
       el.className = 'app-icon';
-      el.setAttribute('onclick', `openApp('${name}', '${icon}', '${finalTarget}')`);
+      if (isFromAppStore) {
+        el.setAttribute('data-appstore', 'true');
+      }
+      el.setAttribute('onclick', `openApp('${name}', '${icon}', '${url}')`);
       el.innerHTML = `<div class="icon-img"><img src="${icon}" alt="${name}"></div><span>${name}</span>`;
       
       mainAppGrid.appendChild(el);
 
-      // Save changes permanently and update UI
       saveState();
       updateInstalledApps();
     }
@@ -802,7 +786,6 @@
     let altTabAppKeys = [];
     let altTabIndex = 0;
 
-    // --- DAY DISPLAY LOGIC ---
     const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
     function updateDayText() {
@@ -813,7 +796,6 @@
     updateDayText();
     setInterval(updateDayText, 60000);
 
-    // Right-Click Dragging with 4x4 snapping for the Day Display
     let isDraggingDay = false;
     let dayDragOffsetX = 0;
     let dayDragOffsetY = 0;
@@ -859,7 +841,6 @@
       e.preventDefault();
       e.stopPropagation();
     });
-    // --- END DAY DISPLAY LOGIC ---
 
     function saveState() {
       const state = {
@@ -872,7 +853,8 @@
         apps: Array.from(document.querySelectorAll('#mainAppGrid .app-icon')).map(app => ({
           name: app.querySelector('span').textContent,
           icon: app.querySelector('img').src,
-          url: app.getAttribute('onclick').match(/'([^']*)'/g)[2].replace(/'/g, '')
+          url: app.getAttribute('onclick').match(/'([^']*)'/g)[2].replace(/'/g, ''),
+          isFromAppStore: app.getAttribute('data-appstore') === 'true'
         }))
       };
       localStorage.setItem('osState', JSON.stringify(state));
@@ -887,6 +869,9 @@
           state.apps.forEach(app => {
             const el = document.createElement('div');
             el.className = 'app-icon';
+            if (app.isFromAppStore) {
+              el.setAttribute('data-appstore', 'true');
+            }
             el.setAttribute('onclick', `openApp('${app.name}', '${app.icon}', '${app.url}')`);
             el.innerHTML = `<div class="icon-img"><img src="${app.icon}" alt="${app.name}"></div><span>${app.name}</span>`;
             grid.appendChild(el);
@@ -916,7 +901,6 @@
       updateInstalledApps();
     }
 
-    // --- GitHub Wallpaper Fetcher ---
     function renderWallpapers() {
       wg.innerHTML = '';
       wallpapers.forEach(wp => {
@@ -997,7 +981,6 @@
       saveState();
     }
 
-    // --- Rain Effect Engine ---
     const rainCanvas = document.getElementById('rainCanvas');
     const ctxRain = rainCanvas.getContext('2d');
     let rainDrops = [];
@@ -1056,7 +1039,6 @@
       saveState();
     }
 
-    // Live Clock Update
     setInterval(() => {
       const now = new Date();
       let h = now.getHours(), m = now.getMinutes();
@@ -1073,10 +1055,15 @@
       const appIconEl = e.target.closest('.app-icon');
       if (appIconEl) {
         e.preventDefault();
-        appContextMenu.style.display = 'flex';
-        appContextMenu.style.left = Math.min(e.pageX, window.innerWidth - 220) + 'px';
-        appContextMenu.style.top = Math.min(e.pageY, window.innerHeight - 80) + 'px';
-        appContextMenu.setAttribute('data-target-app', appIconEl.querySelector('span').textContent);
+        // ONLY allow delete context menu if app was installed from the App Store
+        if (appIconEl.getAttribute('data-appstore') === 'true') {
+          appContextMenu.style.display = 'flex';
+          appContextMenu.style.left = Math.min(e.pageX, window.innerWidth - 220) + 'px';
+          appContextMenu.style.top = Math.min(e.pageY, window.innerHeight - 80) + 'px';
+          appContextMenu.setAttribute('data-target-app', appIconEl.querySelector('span').textContent);
+        } else {
+          appContextMenu.style.display = 'none';
+        }
         contextMenu.classList.remove('active');
         return;
       }
@@ -1102,7 +1089,7 @@
       if (targetAppName) {
         const appIcons = document.querySelectorAll('#mainAppGrid .app-icon');
         appIcons.forEach(app => {
-          if (app.querySelector('span').textContent === targetAppName) {
+          if (app.querySelector('span').textContent === targetAppName && app.getAttribute('data-appstore') === 'true') {
             app.remove();
           }
         });
@@ -1280,7 +1267,8 @@
         return {
           name: app.querySelector('span').textContent,
           icon: app.querySelector('img').src,
-          url: app.getAttribute('onclick').match(/'([^']*)'/g)[2].replace(/'/g, '')
+          url: app.getAttribute('onclick').match(/'([^']*)'/g)[2].replace(/'/g, ''),
+          isFromAppStore: app.getAttribute('data-appstore') === 'true'
         };
       });
     }
@@ -1324,7 +1312,6 @@
       `;
     });
 
-    // App Window Lifecycle
     function openApp(name, iconSrc, url) {
       if (openApps[name]) {
         showAppWindow(name);
@@ -1473,7 +1460,6 @@
       updateAltTabKeys();
     }
 
-    // --- Alt-Tab Logic ---
     function updateAltTabKeys() {
       altTabAppKeys = Object.keys(openApps);
     }
@@ -1526,7 +1512,6 @@
       });
     }
 
-    // Init Sequence
     loadState();
     fetchGitHubWallpapers();
   </script>
