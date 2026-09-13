@@ -1,122 +1,574 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Frutiger App Store</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Store</title>
   <style>
+    :root {
+      --bg-primary: #09090e;
+      --bg-card: #12121a;
+      --bg-hover: #1a1a26;
+      --accent: #38bdf8;
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --success: #22c55e;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
     }
+
     body {
-      background: #0f0f12;
-      color: #ffffff;
-      padding: 24px;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
     }
-    h1 {
-      font-size: 22px;
-      margin-bottom: 6px;
-    }
-    p.subtitle {
-      font-size: 13px;
-      color: #8e8e93;
-      margin-bottom: 24px;
-    }
-    .store-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-    }
-    .app-card {
-      background: #1c1c1e;
-      border: 1px solid #2c2c2e;
-      border-radius: 16px;
-      padding: 16px;
+
+    /* Fullscreen Application Layout */
+    .app-store {
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-primary);
       display: flex;
       flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Header Navigation */
+    .header {
+      height: 60px;
+      padding: 0 32px;
+      display: flex;
       align-items: center;
-      text-align: center;
-      transition: transform 0.2s, background 0.2s;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(9, 9, 14, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      flex-shrink: 0;
     }
-    .app-card:hover {
-      transform: translateY(-3px);
-      background: #242426;
+
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .app-card img {
-      width: 64px;
-      height: 64px;
-      border-radius: 14px;
-      object-fit: cover;
-      margin-bottom: 12px;
+
+    .brand-icon {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      border-radius: 6px;
     }
-    .app-card h3 {
-      font-size: 15px;
-      margin-bottom: 4px;
+
+    /* Table View Container spanning edge-to-edge */
+    .table-container {
+      padding: 0;
+      overflow-y: auto;
+      flex-grow: 1;
     }
-    .app-card p {
-      font-size: 11px;
-      color: #8e8e93;
-      margin-bottom: 14px;
-    }
-    .install-btn {
-      background: #0a84ff;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
+
+    .app-table {
       width: 100%;
-      transition: background 0.15s;
+      border-collapse: collapse;
+      text-align: left;
     }
-    .install-btn:hover {
-      background: #0071e3;
+
+    .app-table th {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 16px 32px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .app-table th.col-num {
+      width: 60px;
+      padding-left: 32px;
+    }
+
+    .app-table th.col-actions {
+      text-align: right;
+      width: 140px;
+      padding-right: 32px;
+    }
+
+    .app-row {
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .app-row:hover {
+      background: var(--bg-hover);
+    }
+
+    .app-row td {
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .col-num {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-align: center;
+      width: 60px;
+      padding-left: 32px !important;
+    }
+
+    .col-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Smooth rounded list row icon without outer box */
+    .app-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      object-position: center;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .app-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .app-developer {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .col-actions {
+      text-align: right;
+      padding-right: 32px !important;
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent);
+      border: none;
+      padding: 6px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .action-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .action-btn.installed {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+    }
+
+    /* Modal Overlay */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Enhanced Detail View Window */
+    .detail-view {
+      width: 1000px;
+      max-height: 90vh;
+      background: #14141e;
+      border-radius: 28px;
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.95);
+      transform: scale(0.92);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active .detail-view {
+      transform: scale(1);
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 30;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+      font-size: 1.1rem;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .hero-banner {
+      width: 100%;
+      height: 400px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 140px;
+      background: linear-gradient(to top, #14141e 10%, transparent);
+    }
+
+    .detail-header {
+      padding: 0 44px;
+      margin-top: -64px;
+      position: relative;
+      z-index: 25;
+      display: flex;
+      align-items: flex-end;
+      gap: 28px;
+    }
+
+    /* Direct app icon with ultra-smooth corners and subtle shadow */
+    .detail-icon {
+      width: 128px;
+      height: 128px;
+      border-radius: 32px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      flex-shrink: 0;
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5);
+    }
+
+    .detail-title-group {
+      flex: 1;
+      margin-bottom: 6px;
+    }
+
+    .detail-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .detail-developer {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      margin-top: 4px;
+    }
+
+    /* Removed light blue box-shadow glowing effect on action button */
+    .detail-header .action-btn {
+      padding: 12px 38px;
+      font-size: 1.05rem;
+      border-radius: 28px;
+      box-shadow: none;
+    }
+
+    .detail-body {
+      padding: 44px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .detail-body h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .detail-description {
+      color: #94a3b8;
+      line-height: 1.65;
+      font-size: 1.1rem;
     }
   </style>
 </head>
 <body>
 
-  <h1>Frutiger App Store</h1>
-  <p class="subtitle">Select an app to automatically add it to your launcher menu</p>
+  <div class="app-store">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon"></div>
+        <span>App Store</span>
+      </div>
+    </header>
 
-  <div class="store-grid">
-    <div class="app-card">
-      <img src="https://img.icons8.com/color/96/discord-logo.png" alt="Discord">
-      <h3>Discord</h3>
-      <p>Chat & Community</p>
-      <button class="install-btn" onclick="installApp('Discord', 'https://img.icons8.com/color/96/discord-logo.png', 'https://discord.com/app')">Install App</button>
-    </div>
+    <!-- Table Main Content -->
+    <main class="table-container">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th class="col-num">#</th>
+            <th class="col-title">Title</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="appTableBody"></tbody>
+      </table>
+    </main>
 
-    <div class="app-card">
-      <img src="https://img.icons8.com/color/96/github.png" alt="GitHub">
-      <h3>GitHub</h3>
-      <p>Developer Platform</p>
-      <button class="install-btn" onclick="installApp('GitHub', 'https://img.icons8.com/color/96/github.png', 'https://github.com')">Install App</button>
-    </div>
-
-    <div class="app-card">
-      <img src="https://img.icons8.com/color/96/youtube-play.png" alt="YouTube">
-      <h3>YouTube</h3>
-      <p>Video & Streaming</p>
-      <button class="install-btn" onclick="installApp('YouTube', 'https://img.icons8.com/color/96/youtube-play.png', 'https://youtube.com')">Install App</button>
+    <!-- App Detail View Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="detail-view">
+        <button class="back-btn" id="backBtn">✕</button>
+        <div class="hero-banner" id="detailHero"></div>
+        <div class="detail-header">
+          <img class="detail-icon" id="detailIcon" src="" alt="App Icon">
+          <div class="detail-title-group">
+            <h1 class="detail-title" id="detailTitle">App Name</h1>
+            <p class="detail-developer" id="detailDeveloper">Developer</p>
+          </div>
+          <button class="action-btn" id="detailGetBtn">GET</button>
+        </div>
+        <div class="detail-body">
+          <h3>About this app</h3>
+          <p class="detail-description" id="detailDescription">App description goes here...</p>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    /* Message sender function */
-    function installApp(appName, imageUrl, appUrl) {
-      window.parent.postMessage({
-        type: 'INSTALL_APP',
-        name: appName,
-        image: imageUrl,
-        url: appUrl
-      }, '*');
-      alert(appName + ' was added to your desktop!');
+    const appsData = [
+      {
+        id: 'minecraft',
+        name: 'Minecraft 1.20.1',
+        developer: 'Mojang Studios',
+        icon: 'https://play-lh.googleusercontent.com/27O5tpaYE82W6m30rJ_MX3-UvshlDM6O8oXDxb6GseYW2T7P8UNT19727MGmz-0q3w',
+        hero: 'https://cdn.mos.cms.futurecdn.net/AZ4nyhrARyZhc69hMXAy3L.jpg',
+        url: 'APP/Minecraft.html',
+        description: 'Explore infinite worlds, build anything from simple homes to grand castles, and craft your own adventures in Minecraft version 1.20.1.'
+      },
+      {
+        id: 'roblox',
+        name: 'Roblox',
+        developer: 'Roblox Corporation',
+        icon: 'https://i.pinimg.com/originals/1a/c6/c5/1ac6c5d7cbf6c64b13923d7e258f34a3.jpg',
+        hero: 'https://cdn.aptoide.com/imgs/7/a/4/7a4d577cbb73a091958a0ac297b81638_fgraphic.png',
+        url: 'https://truffled.lol/browser/frame/?mode=preview&url=https%3A%2F%2Fnowgg.fun%2Fapps%2Fa%2F19900%2Fb.html',
+        description: 'Explore virtual worlds, play games created by a global community, and create your own experiences in Roblox.'
+      },
+      {
+        id: 'after-hours',
+        name: 'After Hours',
+        developer: 'The Weeknd',
+        icon: 'https://picsum.photos/id/1062/150/150',
+        hero: 'https://picsum.photos/id/1062/900/400',
+        url: '',
+        description: 'Advanced media production suite engineered for high-fidelity audio creation and dark-mode workspace optimization.'
+      },
+      {
+        id: 'die-for-you',
+        name: 'Die For You',
+        developer: 'The Weeknd',
+        icon: 'https://picsum.photos/id/1025/150/150',
+        hero: 'https://picsum.photos/id/1025/900/400',
+        url: '',
+        description: 'Comprehensive design tool featuring real-time collaborative editing, vector graphics support, and layer assets management.'
+      },
+      {
+        id: 'starboy',
+        name: 'Starboy',
+        developer: 'The Weeknd / Daft Punk',
+        icon: 'https://picsum.photos/id/0/150/150',
+        hero: 'https://picsum.photos/id/0/900/400',
+        url: '',
+        description: 'High-performance visual engine built for seamless rendering, modern workspace navigation, and custom scripts.'
+      }
+    ];
+
+    const STORAGE_KEY = 'os_installed_apps';
+
+    function getInstalledApps() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
     }
+
+    function toggleInstall(appId) {
+      let installed = getInstalledApps();
+      if (!installed.includes(appId)) {
+        installed.push(appId);
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(installed));
+    }
+
+    function isInstalled(appId) {
+      return getInstalledApps().includes(appId);
+    }
+
+    const appTableBody = document.getElementById('appTableBody');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const backBtn = document.getElementById('backBtn');
+
+    const detailHero = document.getElementById('detailHero');
+    const detailIcon = document.getElementById('detailIcon');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailDeveloper = document.getElementById('detailDeveloper');
+    const detailDescription = document.getElementById('detailDescription');
+    const detailGetBtn = document.getElementById('detailGetBtn');
+
+    let currentApp = null;
+
+    function renderStore() {
+      appTableBody.innerHTML = '';
+      
+      appsData.forEach((app, index) => {
+        const row = document.createElement('tr');
+        row.className = 'app-row';
+
+        const installed = isInstalled(app.id);
+
+        row.innerHTML = `
+          <td class="col-num">${index + 1}</td>
+          <td class="col-title">
+            <img class="app-icon" src="${app.icon}" alt="${app.name}">
+            <div class="app-info">
+              <span class="app-title">${app.name}</span>
+              <span class="app-developer">${app.developer}</span>
+            </div>
+          </td>
+          <td class="col-actions">
+            <button class="action-btn ${installed ? 'installed' : ''}">
+              ${installed ? 'OPEN' : 'GET'}
+            </button>
+          </td>
+        `;
+
+        row.addEventListener('click', (e) => {
+          if (e.target.classList.contains('action-btn')) {
+            e.stopPropagation();
+            handleInstall(app);
+            return;
+          }
+          openDetailMenu(app);
+        });
+
+        appTableBody.appendChild(row);
+      });
+    }
+
+    function openDetailMenu(app) {
+      currentApp = app;
+      detailHero.style.backgroundImage = `url(${app.hero})`;
+      detailIcon.src = app.icon;
+      detailTitle.textContent = app.name;
+      detailDeveloper.textContent = app.developer;
+      detailDescription.textContent = app.description;
+
+      updateDetailButtonState();
+
+      modalOverlay.classList.add('active');
+    }
+
+    function closeDetailMenu() {
+      modalOverlay.classList.remove('active');
+      currentApp = null;
+    }
+
+    function updateDetailButtonState() {
+      if (!currentApp) return;
+      const installed = isInstalled(currentApp.id);
+      detailGetBtn.textContent = installed ? 'OPEN' : 'GET';
+      if (installed) {
+        detailGetBtn.classList.add('installed');
+      } else {
+        detailGetBtn.classList.remove('installed');
+      }
+    }
+
+    function handleInstall(app) {
+      if (isInstalled(app.id)) {
+        if (app.url) {
+          window.open(app.url, '_blank');
+        }
+      } else {
+        toggleInstall(app.id);
+        renderStore();
+        if (currentApp && currentApp.id === app.id) {
+          updateDetailButtonState();
+        }
+      }
+    }
+
+    backBtn.addEventListener('click', closeDetailMenu);
+
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        closeDetailMenu();
+      }
+    });
+
+    detailGetBtn.addEventListener('click', () => {
+      if (currentApp) {
+        handleInstall(currentApp);
+      }
+    });
+
+    renderStore();
   </script>
 </body>
 </html>
