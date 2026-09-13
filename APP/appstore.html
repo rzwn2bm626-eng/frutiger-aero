@@ -32,7 +32,6 @@
       overflow: hidden;
     }
 
-    /* Fullscreen Application Layout */
     .app-store {
       width: 100vw;
       height: 100vh;
@@ -43,7 +42,6 @@
       overflow: hidden;
     }
 
-    /* Header Navigation */
     .header {
       height: 60px;
       padding: 0 32px;
@@ -73,7 +71,6 @@
       border-radius: 6px;
     }
 
-    /* Table View Container spanning edge-to-edge */
     .table-container {
       padding: 0;
       overflow-y: auto;
@@ -134,7 +131,6 @@
       gap: 16px;
     }
 
-    /* Smooth rounded list row icon without outer box */
     .app-icon {
       width: 48px;
       height: 48px;
@@ -191,7 +187,6 @@
       color: var(--success);
     }
 
-    /* Modal Overlay */
     .modal-overlay {
       position: absolute;
       top: 0;
@@ -214,7 +209,6 @@
       pointer-events: auto;
     }
 
-    /* Enhanced Detail View Window */
     .detail-view {
       width: 1000px;
       max-height: 90vh;
@@ -289,7 +283,6 @@
       gap: 28px;
     }
 
-    /* Direct app icon with ultra-smooth corners and subtle shadow */
     .detail-icon {
       width: 128px;
       height: 128px;
@@ -318,7 +311,6 @@
       margin-top: 4px;
     }
 
-    /* Removed light blue box-shadow glowing effect on action button */
     .detail-header .action-btn {
       padding: 12px 38px;
       font-size: 1.05rem;
@@ -349,7 +341,6 @@
 <body>
 
   <div class="app-store">
-    <!-- Header -->
     <header class="header">
       <div class="brand">
         <div class="brand-icon"></div>
@@ -357,7 +348,6 @@
       </div>
     </header>
 
-    <!-- Table Main Content -->
     <main class="table-container">
       <table class="app-table">
         <thead>
@@ -371,7 +361,6 @@
       </table>
     </main>
 
-    <!-- App Detail View Modal -->
     <div class="modal-overlay" id="modalOverlay">
       <div class="detail-view">
         <button class="back-btn" id="backBtn">✕</button>
@@ -398,9 +387,9 @@
         id: 'minecraft',
         name: 'Minecraft 1.20.1',
         developer: 'Mojang Studios',
-        icon: 'https://play-lh.googleusercontent.com/27O5tpaYE82W6m30rJ_MX3-UvshlDM6O8oXDxb6GseYW2T7P8UNT19727MGmz-0q3w',
+        icon: 'https://cdn.mos.cms.futurecdn.net/AZ4nyhrARyZhc69hMXAy3L.jpg',
         hero: 'https://cdn.mos.cms.futurecdn.net/AZ4nyhrARyZhc69hMXAy3L.jpg',
-        url: 'APP/Minecraft.html',
+        url: 'APP/minecraft.html',
         description: 'Explore infinite worlds, build anything from simple homes to grand castles, and craft your own adventures in Minecraft version 1.20.1.'
       },
       {
@@ -413,31 +402,31 @@
         description: 'Explore virtual worlds, play games created by a global community, and create your own experiences in Roblox.'
       },
       {
-        id: 'after-hours',
-        name: 'After Hours',
-        developer: 'The Weeknd',
-        icon: 'https://picsum.photos/id/1062/150/150',
-        hero: 'https://picsum.photos/id/1062/900/400',
-        url: '',
-        description: 'Advanced media production suite engineered for high-fidelity audio creation and dark-mode workspace optimization.'
+        id: 'Friday Night Funkin',
+        name: 'Friday Night Funkin',
+        developer: 'Friday Night Funkin',
+        icon: 'https://tse1.mm.bing.net/th/id/OIP.z7quq_mfyyZLQ69-ILgVZwHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+        hero: 'https://tse2.mm.bing.net/th/id/OIP.IBQe12VYiPu7tn-1Yc9NZAHaEK?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+        url: 'APP/Friday Night Funkin.html',
+        description: ''
       },
       {
-        id: 'die-for-you',
-        name: 'Die For You',
-        developer: 'The Weeknd',
-        icon: 'https://picsum.photos/id/1025/150/150',
-        hero: 'https://picsum.photos/id/1025/900/400',
-        url: '',
-        description: 'Comprehensive design tool featuring real-time collaborative editing, vector graphics support, and layer assets management.'
+        id: 'fnaf',
+        name: 'fnaf',
+        developer: 'fnaf',
+        icon: 'https://tse1.mm.bing.net/th/id/OIP.YZwheE6FWmMwk7bnsnM9dQHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+        hero: 'https://tse3.mm.bing.net/th/id/OIP.yx5LqZFIKH1pyaIUb7yxnQHaDR?r=0&rs=1&pid=ImgDetMain&o=7&rm=3',
+        url: 'APP/fnaf.html',
+        description: ''
       },
       {
-        id: 'starboy',
-        name: 'Starboy',
-        developer: 'The Weeknd / Daft Punk',
-        icon: 'https://picsum.photos/id/0/150/150',
-        hero: 'https://picsum.photos/id/0/900/400',
-        url: '',
-        description: 'High-performance visual engine built for seamless rendering, modern workspace navigation, and custom scripts.'
+        id: 'candy crush',
+        name: 'candy crush',
+        developer: 'candy-crush-sega',
+        icon: 'https://static.wikia.nocookie.net/candy-crush-saga/images/5/56/Candy_Crush_Saga_1.183_icon.jpg/revision/latest/scale-to-width-down/275?cb=20200825163531',
+        hero: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRC_6lInpfd41gBvvsnoNLkUg57K5VuaU7zDAXaVaW214ZsS7gn0it6hBQP&s=10',
+        url: 'APP/cand.html',
+        description: ''
       }
     ];
 
@@ -542,10 +531,23 @@
 
     function handleInstall(app) {
       if (isInstalled(app.id)) {
-        if (app.url) {
-          window.open(app.url, '_blank');
-        }
+        // App is already installed, send open request or open window
+        window.parent.postMessage({
+          type: 'OPEN_APP',
+          app: { name: app.name, icon: app.icon, url: app.url }
+        }, '*');
       } else {
+        // Send signal to Parent Main OS to install the app
+        window.parent.postMessage({
+          type: 'INSTALL_APP',
+          app: {
+            name: app.name,
+            icon: app.icon,
+            url: app.url,
+            isFromAppStore: true
+          }
+        }, '*');
+
         toggleInstall(app.id);
         renderStore();
         if (currentApp && currentApp.id === app.id) {
