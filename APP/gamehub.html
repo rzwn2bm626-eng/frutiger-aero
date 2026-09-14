@@ -128,7 +128,7 @@ body {
 .add-icon { font-size: 50px; color: #555; margin-bottom: 10px; font-weight: 300; }
 .add-text { font-size: 1.1rem; color: #777; }
 
-/* --- SECOND MENU: Game Details View (Hidden by default) --- */
+/* --- SECOND MENU: Game Details View --- */
 #detailView {
   display: none;
   position: fixed;
@@ -274,7 +274,7 @@ body {
 }
 .download-btn:hover { background-color: #333; border-color: #666; }
 
-/* --- THIRD MENU: In-app Game Player View (Full Screen Overlay) --- */
+/* --- THIRD MENU: In-app Game Player View --- */
 #gamePlayerView {
   display: none;
   position: fixed;
@@ -494,24 +494,44 @@ body {
 </div>
 
 <script>
-// Sends the signal to the parent main HTML/OS to install the game
-function installCurrentGame() {
+// Route raw GitHub links through raw.githack CDN so browsers render HTML headers correctly
+function cleanWebUrl(url) {
+  if (!url) return '';
+  if (url.includes('raw.githubusercontent.com')) {
+    return url.replace('raw.githubusercontent.com', 'raw.githack.com');
+  }
+  return url;
+}
+
+// Sends the signal to parent OS with formatted web URL and raw HTML source code
+async function installCurrentGame() {
   if (!activeGameName || !activeGameUrl) return;
+
+  let codeToSend = currentGameCode;
+  if (!codeToSend) {
+    try {
+      const res = await fetch(activeGameUrl);
+      if (res.ok) codeToSend = await res.text();
+    } catch (err) {}
+  }
+
+  const executableUrl = cleanWebUrl(activeGameUrl);
 
   window.parent.postMessage({
     type: 'INSTALL_APP',
     app: {
       name: activeGameName,
       icon: activeGameImg,
-      url: activeGameUrl,
+      url: executableUrl,
+      code: codeToSend,
       description: activeGameDesc,
       isFromAppStore: true
     }
   }, '*');
 }
 
-// --- Configuration Constants and Data State ---
-const BASE_CDN_NETWORK = "https://raw.githubusercontent.com/school-rgb/Hydra-assets/main/";
+// Network CDN endpoints
+const BASE_CDN_NETWORK = "https://raw.githack.com/school-rgb/Hydra-assets/main/";
 const GAMES_FOLDER_NETWORK = "gmes/";
 const FALLBACK_IMG = "https://img.icons8.com/?size=100&id=gp2EGUQ15At9&format=png&color=999999";
 
@@ -525,10 +545,7 @@ const HIDDEN_GAMES = [
   "BuildNow.gg",
 ];
 
-let DATA = {
-  games: []
-};
-
+let DATA = { games: [] };
 let activeGameName = '';
 let activeGameUrl = '';
 let activeGameImg = '';
@@ -550,11 +567,10 @@ function dedupeGames(games) {
   });
 }
 
-// LOAD NETWORK SOURCE WITH FORCED BROWSER CACHE BUSTING
 async function loadNetworkGames() {
   try {
     const cacheBuster = '?t=' + new Date().getTime();
-    const r = await fetch(BASE_CDN_NETWORK + "gmes.json" + cacheBuster, { cache: 'no-store' });
+    const r = await fetch("https://raw.githubusercontent.com/school-rgb/Hydra-assets/main/gmes.json" + cacheBuster, { cache: 'no-store' });
     if (!r.ok) {
       loadFromCacheFallback();
       return;
@@ -582,7 +598,7 @@ async function loadNetworkGames() {
         name: title,
         description: g.description || g.desc || "",
         img: thumb,
-        url: rawGameUrl,
+        url: cleanWebUrl(rawGameUrl),
         source: "network"
       };
     }).filter(Boolean));
@@ -670,7 +686,7 @@ function filterGames() {
 
 async function openDetailView(name, url, img, desc) {
   activeGameName = name;
-  activeGameUrl = url;
+  activeGameUrl = cleanWebUrl(url);
   activeGameImg = img || FALLBACK_IMG;
   activeGameDesc = desc || 'Experience smooth gameplay directly inside your hub.';
 
@@ -686,9 +702,7 @@ async function openDetailView(name, url, img, desc) {
     if (response.ok) {
       currentGameCode = await response.text();
     }
-  } catch (err) {
-    // Cross-origin or network error
-  }
+  } catch (err) {}
 }
 
 function closeDetailView() {
@@ -750,7 +764,7 @@ function openAddModal() {
 function confirmAddGame() {
   const name = document.getElementById('inputName').value;
   const imgUrl = document.getElementById('inputImg').value;
-  const url = document.getElementById('inputUrl').value;
+  const url = cleanWebUrl(document.getElementById('inputUrl').value);
   const desc = document.getElementById('inputDesc').value;
 
   if (!name || !url) {
