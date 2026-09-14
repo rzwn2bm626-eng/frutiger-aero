@@ -454,8 +454,8 @@ body {
       <button class="play-btn" id="playNowBtn" onclick="launchGameFromDetails()">
         <span>▶</span> Play Game
       </button>
-      <button class="download-btn" onclick="downloadCurrentGame()">
-        <span>⬇</span> Download Game
+      <button class="download-btn" id="installGameBtn" onclick="installCurrentGame()">
+        <span>⬇</span> Install Game
       </button>
     </div>
   </div>
@@ -494,13 +494,19 @@ body {
 </div>
 
 <script>
-// --- Installed App Script Integration ---
-function installApp(appName, imageUrl, appUrl) {
+// Sends the signal to the parent main HTML/OS to install the game
+function installCurrentGame() {
+  if (!activeGameName || !activeGameUrl) return;
+
   window.parent.postMessage({
     type: 'INSTALL_APP',
-    name: appName,
-    image: imageUrl,
-    url: appUrl
+    app: {
+      name: activeGameName,
+      icon: activeGameImg,
+      url: activeGameUrl,
+      description: activeGameDesc,
+      isFromAppStore: true
+    }
   }, '*');
 }
 
@@ -509,11 +515,10 @@ const BASE_CDN_NETWORK = "https://raw.githubusercontent.com/school-rgb/Hydra-ass
 const GAMES_FOLDER_NETWORK = "gmes/";
 const FALLBACK_IMG = "https://img.icons8.com/?size=100&id=gp2EGUQ15At9&format=png&color=999999";
 
-// ENTER THE FULL EXACT GAME NAME HERE TO HIDE AND BLOCK IT
 const HIDDEN_GAMES = [
   "Geometry Dash Lite (REMAKE)",
-    "Plants vs. Zombies 2 Gardenless",
-    "Geometry Dash Lite",
+  "Plants vs. Zombies 2 Gardenless",
+  "Geometry Dash Lite",
   "Subway Surfers New Orleans",
   "Subway Surfers San Francisco",
   "Cross Yr Oad",
@@ -582,7 +587,6 @@ async function loadNetworkGames() {
       };
     }).filter(Boolean));
 
-    // Filter using exact full names as specified
     const filteredData = freshData.filter(game => {
       const gameTitle = game.name.trim().toLowerCase();
       return !HIDDEN_GAMES.some(hiddenName => gameTitle === hiddenName.trim().toLowerCase());
@@ -622,7 +626,6 @@ function loadFromCacheFallback() {
   renderGames();
 }
 
-// Render games into the grid
 function renderGames() {
   const grid = document.getElementById('gameGrid');
   const dynamicCards = grid.querySelectorAll('.remote-card');
@@ -651,7 +654,6 @@ function renderGames() {
   });
 }
 
-// Filter games based on search input
 function filterGames() {
   const query = document.getElementById('searchInput').value.toLowerCase().trim();
   const remoteCards = document.querySelectorAll('.remote-card');
@@ -666,7 +668,6 @@ function filterGames() {
   });
 }
 
-// Open Second Menu (Game Details View)
 async function openDetailView(name, url, img, desc) {
   activeGameName = name;
   activeGameUrl = url;
@@ -686,16 +687,14 @@ async function openDetailView(name, url, img, desc) {
       currentGameCode = await response.text();
     }
   } catch (err) {
-    // Cross-origin or network error, will fall back to URL opening
+    // Cross-origin or network error
   }
 }
 
-// Close Second Menu and return to Home
 function closeDetailView() {
   document.getElementById('detailView').style.display = 'none';
 }
 
-// Triggered from Second Menu's "Play Game" button
 function launchGameFromDetails() {
   closeDetailView();
   currentGameUrl = activeGameUrl;
@@ -714,40 +713,6 @@ function launchGameFromDetails() {
   }
 }
 
-// Download the standalone HTML file of the current game so it can run itself
-async function downloadCurrentGame() {
-  if (!activeGameUrl) return;
-
-  try {
-    let codeToDownload = currentGameCode;
-    if (!codeToDownload) {
-      const response = await fetch(activeGameUrl);
-      if (response.ok) {
-        codeToDownload = await response.text();
-      } else {
-        window.open(activeGameUrl, '_blank');
-        return;
-      }
-    }
-
-    const blob = new Blob([codeToDownload], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    
-    const safeFileName = activeGameName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    a.download = safeFileName + '.html';
-    
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    window.open(activeGameUrl, '_blank');
-  }
-}
-
-// Open the game runner in a new browser tab/window
 function openInNewTab() {
   if (!currentGameUrl) return;
 
@@ -760,7 +725,6 @@ function openInNewTab() {
   }
 }
 
-// Reset everything and go back to Home
 function returnHome() {
   document.getElementById('gamePlayerView').style.display = 'none';
   document.getElementById('detailView').style.display = 'none';
@@ -769,24 +733,20 @@ function returnHome() {
   currentGameCode = '';
 }
 
-// Automatically fetch and render games on every page open
 window.addEventListener('DOMContentLoaded', async () => {
   await loadNetworkGames();
 });
 
-// Close modal when clicking outside
 window.onclick = function(event) {
   const addModal = document.getElementById('addModal');
   if (event.target == addModal) addModal.style.display = "none";
 }
 
-// Open add game modal
 function openAddModal() {
   document.getElementById('addModal').style.display = 'flex';
   document.getElementById('inputName').focus();
 }
 
-// Confirm adding a custom game
 function confirmAddGame() {
   const name = document.getElementById('inputName').value;
   const imgUrl = document.getElementById('inputImg').value;
