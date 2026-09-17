@@ -722,8 +722,8 @@
   </div>
 
   <script>
-    // Storage Key updated to reset state for all users while keeping save functionality active
-    const STORAGE_KEY = 'osState_v2';
+    // Updated Storage Key to reset state while allowing future saving
+    const STORAGE_KEY = 'osState_v3_reset';
 
     // --- LISTEN FOR MESSAGES FROM APP STORE IFRAME ---
     window.addEventListener('message', (event) => {
@@ -1051,24 +1051,19 @@
       document.getElementById('clockTime').textContent = `${h}:${m} ${ampm}`;
     }, 1000);
 
-    // Context Menu Logic
+    // Context Menu Handling
     window.addEventListener('contextmenu', e => {
       if (e.target.closest('#launcherMenu') || e.target.closest('.app-window') || e.target.closest('#dayDisplay')) return;
       
       const appIconEl = e.target.closest('.app-icon');
       if (appIconEl) {
-        // ONLY allow delete context menu if app was installed/downloaded from the App Store
-        if (appIconEl.getAttribute('data-appstore') === 'true') {
-          e.preventDefault();
-          appContextMenu.style.display = 'flex';
-          appContextMenu.style.left = Math.min(e.pageX, window.innerWidth - 220) + 'px';
-          appContextMenu.style.top = Math.min(e.pageY, window.innerHeight - 80) + 'px';
-          appContextMenu.setAttribute('data-target-app', appIconEl.querySelector('span').textContent);
-          contextMenu.classList.remove('active');
-          return;
-        } else {
-          appContextMenu.style.display = 'none';
-        }
+        e.preventDefault();
+        appContextMenu.style.display = 'flex';
+        appContextMenu.style.left = Math.min(e.pageX, window.innerWidth - 220) + 'px';
+        appContextMenu.style.top = Math.min(e.pageY, window.innerHeight - 80) + 'px';
+        appContextMenu.setAttribute('data-target-app', appIconEl.querySelector('span').textContent);
+        contextMenu.classList.remove('active');
+        return;
       }
 
       if (!e.target.closest('.shelf') && (e.target === document.body || e.target.closest('.desktop'))) {
@@ -1092,7 +1087,7 @@
       if (targetAppName) {
         const appIcons = document.querySelectorAll('#mainAppGrid .app-icon');
         appIcons.forEach(app => {
-          if (app.querySelector('span').textContent === targetAppName && app.getAttribute('data-appstore') === 'true') {
+          if (app.querySelector('span').textContent === targetAppName) {
             app.remove();
             if (openApps[targetAppName]) {
               closeApp(targetAppName);
